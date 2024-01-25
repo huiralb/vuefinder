@@ -4,9 +4,9 @@
       <div
           :class="fullScreen ? 'fixed w-screen inset-0 z-20' : 'relative rounded-md'"
           :style="!fullScreen ? 'max-height: ' + maxHeight : ''"
-          class="border flex flex-col bg-white dark:bg-gray-800 text-gray-700 dark:text-neutral-400 border-neutral-300 dark:border-gray-900 min-w-min select-none"
+          class="flex flex-col text-gray-700 bg-white border select-none dark:bg-gray-800 dark:text-neutral-400 border-neutral-300 dark:border-gray-900 min-w-min"
           @mousedown="emitter.emit('vf-contextmenu-hide')" @touchstart="emitter.emit('vf-contextmenu-hide')">
-        <v-f-toolbar :data="fetchData" />
+        <v-f-toolbar v-if="toolbar" :data="fetchData" :toolbar-sets="toolbarSets" :hidden-toolbar-sets="hiddenToolbarSets" />
         <v-f-breadcrumb :data="fetchData"/>
         <v-f-explorer :view="view" :data="fetchData"/>
         <v-f-statusbar :data="fetchData"/>
@@ -69,11 +69,22 @@ const props = defineProps({
   postData: {
     type: Object,
     default: {}
+  },
+  toolbarSets: {
+    type: Array,
+  },
+  hiddenToolbarSets: {
+    type: Array,
+  },
+  toolbar: {
+    type: Boolean,
+    default: true
   }
 });
 const emitter = mitt();
 const {setStore, getStore} = useStorage(props.id);
 const adapter =ref(getStore('adapter'));
+const emit = defineEmits(['select'])
 
 /** @type import('vue').Ref<HTMLDivElement> */
 const root = ref(null);
@@ -152,6 +163,10 @@ emitter.on('vf-modal-show', (item) => {
   modal.type = item.type;
   modal.data = item;
 });
+
+emitter.on('vf-nodes-selected', (items) => {
+  emit('select', items)
+})
 
 const updateItems = (data) => {
   Object.assign(fetchData, data);

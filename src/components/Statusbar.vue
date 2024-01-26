@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between p-1 text-xs border-t select-none border-neutral-300 dark:border-gray-700/50">
+  <div class="flex min-h-[41px] justify-between p-1 text-xs border-t select-none border-neutral-300 dark:border-gray-700/50">
     <div class="flex items-center leading-5">
       <div class="mx-2" :aria-label="t('Storage')" data-microtip-position="top-right" role="tooltip">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
@@ -17,6 +17,8 @@
        <span class="ml-1">{{ selectedItemCount > 0 ? selectedItemCount + ' ' + t('item(s) selected.') : '' }}</span>
      </div>
     </div>
+    <button v-if="showBtnSelect" type="button" @click="select" class="vf-btn vf-btn-primary min-w-32 py-1">{{ t('Select') }}</button>
+
     <div v-if="false" class="flex items-center justify-end leading-5">
       <select v-model="locale" @change="changeLocale($event.target.value)"
               class="w-[120px] delay-200 duration-300 hover:w-full transition-[width] py-0.5 text-sm text-slate-500 border dark:border-gray-600 dark:text-neutral-50 dark:bg-gray-700 rounded pl-2 pr-8 mr-3">
@@ -50,7 +52,7 @@ export default {
 </script>
 
 <script setup>
-import {inject, ref} from 'vue';
+import {computed, inject, ref} from 'vue';
 
 const props = defineProps({
   data: Object,
@@ -58,9 +60,12 @@ const props = defineProps({
 
 const emitter = inject('emitter');
 const {getStore, setStore} = inject('storage');
+const selectedItems = ref([]);
 const selectedItemCount = ref(0);
 const adapter = inject('adapter');
-
+const showBtnSelect = computed(() => {
+  return selectedItems.value.length > 0 && selectedItems.value[0].type == 'file'
+})
 const {t, changeLocale, locale} = inject('i18n');
 
 const handleStorageSelect = () => {
@@ -69,7 +74,10 @@ const handleStorageSelect = () => {
   setStore('adapter', adapter.value)
 };
 
+const select = () => emitter.emit('vf-select-file', selectedItems.value[0])
+
 emitter.on('vf-nodes-selected', (items) => {
+  selectedItems.value = items
   selectedItemCount.value = items.length;
 })
 

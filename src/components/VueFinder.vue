@@ -164,13 +164,14 @@ emitter.on('vf-modal-show', (item) => {
   modal.data = item;
 });
 
-emitter.on('vf-nodes-selected', (items) => {
-  emit('select', items)
+emitter.on('vf-select-file', (item) => {
+  emit('select', item)
 })
 
 const updateItems = (data) => {
   Object.assign(fetchData, data);
   emitter.emit('vf-nodes-selected', {});
+  emitter.emit('vf-select-file', {});
   emitter.emit('vf-explorer-update');
 };
 
@@ -199,6 +200,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null, noCloseModal 
         if (!noCloseModal) {
           emitter.emit('vf-modal-close');
         }
+        data.files = data.files.filter(item => item.basename.charAt(0) != '.')
         updateItems(data);
         onSuccess(data);
       })

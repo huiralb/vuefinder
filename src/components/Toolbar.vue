@@ -183,5 +183,6 @@ emitter.on('vf-nodes-selected', (items) => {
 emitter.on('vf-view-toggle', (newView) => {
   setStore('viewport', newView)
   view.value = newView;
+  emitter.emit('vf-nodes-selected', [])
 })
 </script>

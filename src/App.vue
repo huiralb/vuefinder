@@ -4,7 +4,7 @@
       id='my_vuefinder'
       :max-file-size="maxFileSize"
       :url="url"
-      :hidden-toolbar-sets="['archive', 'fullscreen', 'view']"
+      :hidden-toolbar-sets="['archive', 'fullscreen']"
       @select="selectItem"
     />
   </div>
@@ -17,7 +17,7 @@ const url = ref("http://localhost:8000/filemanager")
 const maxFileSize = ref("500MB")
 
 function selectItem(item){
-  //console.log('item', item)
+  console.log('item', item)
 }
 </script>
 

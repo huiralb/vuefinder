@@ -11,14 +11,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+// import './utils/socket'
 // CHANGE ME, Url for development server endpoint
 const url = ref("http://localhost:8000/filemanager")
 const maxFileSize = ref("500MB")
 
 function selectItem(item){
-  console.log('item', item)
+  // console.log('item', item)
 }
+
+onMounted(() => {
+  window.Echo.channel('channel-name').listen('.SendMessageToClientEvent',(e) => {
+      console.log('Host2>>>', e.message)
+  })
+})
+
 </script>
 
 <style>

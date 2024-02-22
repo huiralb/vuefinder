@@ -169,11 +169,32 @@ emitter.on('vf-select-file', (item) => {
 })
 
 const updateItems = (data) => {
-  Object.assign(fetchData, data);
   emitter.emit('vf-nodes-selected', {});
   emitter.emit('vf-select-file', {});
   emitter.emit('vf-explorer-update');
 };
+
+const tmpFiles = ref([])
+window.Echo.channel('channel-name').listen('.SendMessageToClientEvent',(e) => {
+  console.log('channel>>>', e.message)
+  if(e.message) {
+    tmpFiles.value.push(e.message)
+  }
+})
+if(window.Echo) {
+}
+
+const searchDone = ref(false)
+
+watch(() => searchDone.value, (value) => {
+  if(value === true) {
+    fetchData.files = tmpFiles.value
+    searchDone.value = false
+    tmpFiles.value = []
+  }
+})
+if(window.Echo) {
+}
 
 let controller;
 emitter.on('vf-fetch-abort', () => {
@@ -200,9 +221,21 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null, noCloseModal 
         if (!noCloseModal) {
           emitter.emit('vf-modal-close');
         }
+
         data.files = data.files.filter(item => item.basename.charAt(0) != '.')
         updateItems(data);
-        onSuccess(data);
+        
+        if(params.q === 'search') {
+          
+          searchDone.value = true
+          onSuccess(data);
+          if(!window.Echo) {
+          }
+        }
+        else{
+          Object.assign(fetchData, data);
+          onSuccess(data);
+        }
       })
       .catch((e) => {
         if (onError) {
